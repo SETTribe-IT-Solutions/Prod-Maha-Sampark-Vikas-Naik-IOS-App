@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		812F38042FC0823800DAB309 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 812F38032FC0823800DAB309 /* FirebaseCore */; };
+		812F38062FC0824500DAB309 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 812F38052FC0824500DAB309 /* FirebaseMessaging */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		360025DC2D92F58A007822F5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				812F38062FC0824500DAB309 /* FirebaseMessaging in Frameworks */,
+				812F38042FC0823800DAB309 /* FirebaseCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,7 @@
 				360025CD2D92F589007822F5 /* Maha Sampark */,
 				360025DE2D92F58A007822F5 /* Maha SamparkTests */,
 				360025E82D92F58A007822F5 /* Maha SamparkUITests */,
+				812F38022FC0823800DAB309 /* Frameworks */,
 				360025CC2D92F589007822F5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +98,13 @@
 				360025E52D92F58A007822F5 /* Maha SamparkUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		812F38022FC0823800DAB309 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +127,8 @@
 			);
 			name = "Maha Sampark";
 			packageProductDependencies = (
+				812F38032FC0823800DAB309 /* FirebaseCore */,
+				812F38052FC0824500DAB309 /* FirebaseMessaging */,
 			);
 			productName = "Maha Sampark";
 			productReference = 360025CB2D92F589007822F5 /* Maha Sampark.app */;
@@ -398,10 +415,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Maha Sampark/Maha Sampark.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"Maha Sampark/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = Y7VL74BWYB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Maha-Sampark-Info.plist";
@@ -434,10 +452,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Maha Sampark/Maha Sampark.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"Maha Sampark/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = Y7VL74BWYB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Maha-Sampark-Info.plist";
@@ -602,6 +621,19 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		812F38032FC0823800DAB309 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8AC905612F98CDC90064DD17 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		812F38052FC0824500DAB309 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8AC905612F98CDC90064DD17 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 360025C32D92F589007822F5 /* Project object */;
 }

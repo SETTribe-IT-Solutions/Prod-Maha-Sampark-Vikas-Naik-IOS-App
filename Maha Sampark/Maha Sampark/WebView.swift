@@ -38,10 +38,11 @@ struct WebView: UIViewRepresentable {
     }
 
     func updateUIView(_ webView: WKWebView, context: Context) {
-        if !context.coordinator.hasLoaded {
+        if !context.coordinator.hasLoaded || context.coordinator.lastLoadedURL != url {
             let request = URLRequest(url: url)
             webView.load(request)
             context.coordinator.hasLoaded = true
+            context.coordinator.lastLoadedURL = url
         }
     }
 }

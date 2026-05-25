@@ -4,12 +4,59 @@ import WebKit
 class WebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler, WKDownloadDelegate, WKUIDelegate {
     var parent: WebView
     var hasLoaded = false
+    var lastLoadedURL: URL?
     weak var webView: WKWebView?
     private var completionHandler: (([URL]?) -> Void)? // Moved here
 
     init(_ parent: WebView) {
         self.parent = parent
         super.init()
+        setupNotificationObservers()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupNotificationObservers() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleAPNsTokenUpdate(_:)),
+                                               name: Notification.Name("APNsTokenUpdated"),
+                                               object: nil)
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleFCMTokenUpdate(_:)),
+                                               name: Notification.Name("FCMTokenUpdated"),
+                                               object: nil)
+    }
+    
+    @objc private func handleAPNsTokenUpdate(_ notification: Notification) {
+        if let userInfo = notification.userInfo, let token = userInfo["token"] as? String {
+            injectTokenToWebView(token: token, tokenType: "apns")
+        }
+    }
+    
+    @objc private func handleFCMTokenUpdate(_ notification: Notification) {
+        if let userInfo = notification.userInfo, let token = userInfo["token"] as? String {
+            injectTokenToWebView(token: token, tokenType: "fcm")
+        }
+    }
+    
+    private func injectTokenToWebView(token: String, tokenType: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let webView = self?.webView else { return }
+            
+            let jsMethod = tokenType == "apns" ? "window.setPushToken" : "window.setFcmToken"
+            let jsString = "if (typeof \(jsMethod) === 'function') { \(jsMethod)('\(token)'); } else { console.log('\(jsMethod) not found, but token obtained: \(token)'); }"
+            
+            webView.evaluateJavaScript(jsString) { (result, error) in
+                if let error = error {
+                    print("❌ Error injecting \(tokenType) token: \(error.localizedDescription)")
+                } else {
+                    print("✅ Successfully injected \(tokenType) token to WebView")
+                }
+            }
+        }
     }
 
     // MARK: - JavaScript Message Handling
@@ -65,6 +112,14 @@ class WebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         parent.isLoading = false
         webView.scrollView.refreshControl?.endRefreshing()
+        
+        // Inject saved tokens if they exist when webView finishes loading
+        if let apnsToken = UserDefaults.standard.string(forKey: "APNsToken") {
+            injectTokenToWebView(token: apnsToken, tokenType: "apns")
+        }
+        if let fcmToken = UserDefaults.standard.string(forKey: "FCMToken") {
+            injectTokenToWebView(token: fcmToken, tokenType: "fcm")
+        }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
