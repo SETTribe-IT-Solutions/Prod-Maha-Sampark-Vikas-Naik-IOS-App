@@ -10,11 +10,8 @@ struct ContentView: View {
         var components = URLComponents(string: baseUrl)
         var queryItems = [URLQueryItem]()
         
-        if let apnsToken = UserDefaults.standard.string(forKey: "APNsToken") {
-            queryItems.append(URLQueryItem(name: "pushToken", value: apnsToken))
-        }
         if let fcmToken = UserDefaults.standard.string(forKey: "FCMToken") {
-            queryItems.append(URLQueryItem(name: "fcmToken", value: fcmToken))
+            queryItems.append(URLQueryItem(name: "token", value: fcmToken))
         }
         
         if !queryItems.isEmpty {
@@ -40,17 +37,22 @@ struct ContentView: View {
             }
         }
         .onAppear {
+            print("📎 Initial WebView URL: \(webViewURL.absoluteString)")
             setupNetworkMonitoring()
             requestNotificationPermission()
         }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("APNsTokenUpdated"))) { notification in
-            if let token = notification.userInfo?["token"] as? String {
-                updateURLWithToken(token: token, isFCM: false)
-            }
-        }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("FCMTokenUpdated"))) { notification in
             if let token = notification.userInfo?["token"] as? String {
-                updateURLWithToken(token: token, isFCM: true)
+                print("🔑 FCM Token received: \(token)")
+                // Token is injected into WebView via JavaScript by WebViewCoordinator
+                // No page reload needed
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("APNsTokenUpdated"))) { notification in
+            if let token = notification.userInfo?["token"] as? String {
+                print("🔑 APNs Token received: \(token)")
+                // Token is injected into WebView via JavaScript by WebViewCoordinator
+                // No page reload needed
             }
         }
         .alert(isPresented: $showAlert) {
@@ -62,9 +64,11 @@ struct ContentView: View {
             if newPhase == .active {
                 // App became active
             } else if newPhase == .inactive {
-                // App became inactive
+                // Save cookies when app becomes inactive
+                WebView.saveCookies()
             } else if newPhase == .background {
-                // App moved to background
+                // Save cookies when app moves to background
+                WebView.saveCookies()
             }
         }
     }
@@ -87,29 +91,5 @@ struct ContentView: View {
                 print("Notification permission granted: \(granted)")
             }
     }
-    
-    private func updateURLWithToken(token: String, isFCM: Bool) {
-        var components = URLComponents(url: webViewURL, resolvingAgainstBaseURL: true)
-        var queryItems = components?.queryItems ?? []
-        
-        let paramName = isFCM ? "fcmToken" : "pushToken"
-        
-        // Only update and reload if the token is actually new or changed
-        if let existingIndex = queryItems.firstIndex(where: { $0.name == paramName }) {
-            if queryItems[existingIndex].value == token {
-                return // Token is unchanged, do not reload
-            }
-            queryItems[existingIndex].value = token
-        } else {
-            queryItems.append(URLQueryItem(name: paramName, value: token))
-        }
-        
-        components?.queryItems = queryItems
-        if let newURL = components?.url {
-            DispatchQueue.main.async {
-                self.webViewURL = newURL
-                print("🔄 Updated URL with \(paramName): \(newURL.absoluteString)")
-            }
-        }
-    }
 }
+
